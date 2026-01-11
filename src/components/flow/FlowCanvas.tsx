@@ -34,6 +34,7 @@ const selector = (state: any) => ({
 });
 
 import { getVsCodeApi } from '../../utils/vscode';
+import { MessageType, FileType } from '../../config/messages';
 import type { Node } from 'reactflow';
 
 // ... (existing imports)
@@ -53,9 +54,9 @@ export function FlowCanvas() {
             const javaClassName = (node as any).javaClassName || node.data.javaClassName;
             if (javaClassName) {
                 vscode.postMessage({
-                    type: 'openFile',
+                    type: MessageType.OPEN_FILE,
                     payload: {
-                        type: 'java',
+                        type: FileType.JAVA,
                         target: javaClassName
                     }
                 });
@@ -66,9 +67,9 @@ export function FlowCanvas() {
             const callToProcess = (node as any).callToProcess || node.data.processId;
             if (callToProcess) {
                 vscode.postMessage({
-                    type: 'openFile',
+                    type: MessageType.OPEN_FILE,
                     payload: {
-                        type: 'process',
+                        type: FileType.PROCESS,
                         target: callToProcess
                     }
                 });

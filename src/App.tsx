@@ -9,6 +9,7 @@ import { AlertModal } from './components/ui/AlertModal';
 import { PropertyPanel } from './components/flow/PropertyPanel';
 import { clsx } from 'clsx';
 import { getVsCodeApi } from './utils/vscode';
+import { MessageType } from './config/messages';
 
 // We need an internal component to access useReactFlow hook for project/unproject
 function AppContent() {
@@ -51,7 +52,7 @@ function AppContent() {
     // Listen for messages from VS Code
     const handleMessage = (event: MessageEvent) => {
       const message = event.data;
-      if (message.type === 'update') {
+      if (message.type === MessageType.UPDATE) {
         // Show loading screen immediately
         setIsLoading(true);
 
@@ -138,7 +139,7 @@ function AppContent() {
         // Debouncing could be good here, but for now direct sync
         const json = useFlowStore.getState().serialize();
         vscode.postMessage({
-          type: 'change',
+          type: MessageType.CHANGE,
           payload: JSON.stringify(json, null, 2)
         });
       }
@@ -148,7 +149,7 @@ function AppContent() {
     if (vscode) {
       // Start with loading true as we expect data soon
       setIsLoading(true);
-      vscode.postMessage({ type: 'ready' });
+      vscode.postMessage({ type: MessageType.READY });
     }
 
     return () => {

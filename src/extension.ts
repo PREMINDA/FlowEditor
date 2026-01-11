@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { MessageType, FileType } from './config/messages.js';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Flow Editor is now active!');
@@ -45,15 +46,15 @@ class CustomFlowEditorProvider implements vscode.CustomTextEditorProvider {
         // IMPORTANT: We must register this listener BEFORE setting the HTML to ensure we don't miss the "ready" message
         webviewPanel.webview.onDidReceiveMessage(e => {
             switch (e.type) {
-                case 'change':
+                case MessageType.CHANGE:
                     this.isUpdateFromWebview = true;
                     this.updateTextDocument(document, e.payload);
                     return;
-                case 'ready':
+                case MessageType.READY:
                     console.log('Received ready from webview');
                     this.updateWebview(webviewPanel, document);
                     return;
-                case 'openFile':
+                case MessageType.OPEN_FILE:
                     this.handleOpenFile(e.payload);
                     return;
             }
@@ -66,9 +67,6 @@ class CustomFlowEditorProvider implements vscode.CustomTextEditorProvider {
 
         // Load HTML asynchronously
         webviewPanel.webview.html = await this.getHtmlForWebview(webviewPanel.webview);
-
-        // Send content to webview
-        // this.updateWebview(webviewPanel, document);
 
         // Listen for document changes
         const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
@@ -91,21 +89,19 @@ class CustomFlowEditorProvider implements vscode.CustomTextEditorProvider {
         });
     }
 
-
-
-    private async handleOpenFile(payload: { type: 'java' | 'process', target: string }) {
+    private async handleOpenFile(payload: { type: string, target: string }) {
         if (!payload || !payload.target) return;
 
         console.log(`Searching for file... Type: ${payload.type}, Target: ${payload.target}`);
 
         let searchTerm = '';
-        if (payload.type === 'java') {
+        if (payload.type === FileType.JAVA) {
             // Assume target is fully qualified like com.example.MyAction
             // We search for the simple class name file
             const parts = payload.target.split('.');
             const simpleName = parts[parts.length - 1];
             searchTerm = `**/${simpleName}.java`;
-        } else if (payload.type === 'process') {
+        } else if (payload.type === FileType.PROCESS) {
             // Process target might be just ID or full path
             if (payload.target.endsWith('.flowchartprocess.json')) {
                 searchTerm = `**/${payload.target}`;
@@ -152,7 +148,7 @@ class CustomFlowEditorProvider implements vscode.CustomTextEditorProvider {
         const relativePath = vscode.workspace.asRelativePath(document.uri);
 
         webviewPanel.webview.postMessage({
-            type: 'update',
+            type: MessageType.UPDATE,
             payload: document.getText(),
             fileName: fileName,
             fullFileName: base, // Keep for backward compatibility if needed, but we'll use relativePath
