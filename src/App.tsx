@@ -43,7 +43,9 @@ function AppContent() {
   // VS Code Integration
   const [vscode] = useState(getVsCodeApi);
   const [showJson, setShowJson] = useState(false);
-  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+
+  const alertMessage = useFlowStore((state) => state.alertMessage);
+  const setAlertMessage = useFlowStore((state) => state.setAlertMessage);
 
   useEffect(() => {
     // Listen for messages from VS Code
