@@ -51,6 +51,10 @@ interface FlowState {
     // UI State
     editingNodeId: string | null;
     setEditingNode: (id: string | null) => void;
+
+    // Global Alerts
+    alertMessage: string | null;
+    setAlertMessage: (message: string | null) => void;
 }
 
 export const useFlowStore = create<FlowState>((set, get) => ({
@@ -68,6 +72,9 @@ export const useFlowStore = create<FlowState>((set, get) => ({
     setProcessType: (type) => set({ processType: type }),
 
     setEditingNode: (id) => set({ editingNodeId: id }),
+
+    alertMessage: null,
+    setAlertMessage: (message) => set({ alertMessage: message }),
 
     onNodesChange: (changes: NodeChange[]) => {
         set({
