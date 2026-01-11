@@ -106,8 +106,12 @@ class CustomFlowEditorProvider implements vscode.CustomTextEditorProvider {
             const simpleName = parts[parts.length - 1];
             searchTerm = `**/${simpleName}.java`;
         } else if (payload.type === 'process') {
-            // Process target is usually the name/ID
-            searchTerm = `**/${payload.target}.flowchartprocess.json`;
+            // Process target might be just ID or full path
+            if (payload.target.endsWith('.flowchartprocess.json')) {
+                searchTerm = `**/${payload.target}`;
+            } else {
+                searchTerm = `**/${payload.target}.flowchartprocess.json`;
+            }
         }
 
         try {
