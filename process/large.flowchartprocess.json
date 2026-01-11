@@ -1,0 +1,55 @@
+{
+  "id": "process-1768132423945",
+  "name": "large",
+  "type": "processNode",
+  "filename": "process/large.flowchartprocess.json",
+  "blackboard": {
+    "variables": []
+  },
+  "nodes": [
+    {
+      "id": "startNode-1768132427057",
+      "type": "startNode",
+      "position": {
+        "x": -61,
+        "y": 370.5
+      },
+      "data": {
+        "label": "Start Node"
+      },
+      "width": 100,
+      "height": 40,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -61,
+        "y": 370.5
+      },
+      "dragging": false
+    },
+    {
+      "id": "actionNode-1768132428665",
+      "type": "actionNode",
+      "position": {
+        "x": 231,
+        "y": 268
+      },
+      "data": {
+        "label": "Action Node"
+      },
+      "width": 200,
+      "height": 233,
+      "selected": true,
+      "dragging": false,
+      "javaClassName": "com.example.DemoActionsecond"
+    }
+  ],
+  "edges": [
+    {
+      "source": "startNode-1768132427057",
+      "sourceHandle": "exec-out",
+      "target": "actionNode-1768132428665",
+      "targetHandle": "exec-in",
+      "id": "reactflow__edge-startNode-1768132427057exec-out-actionNode-1768132428665exec-in"
+    }
+  ]
+}

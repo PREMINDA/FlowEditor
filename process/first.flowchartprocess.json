@@ -1,0 +1,115 @@
+{
+  "id": "process-1768132302828",
+  "name": "first",
+  "type": "processNode",
+  "filename": "process/first.flowchartprocess.json",
+  "blackboard": {
+    "variables": []
+  },
+  "nodes": [
+    {
+      "id": "startNode-1768132304966",
+      "type": "startNode",
+      "position": {
+        "x": -152.5,
+        "y": 346.5
+      },
+      "data": {
+        "label": "Start Node"
+      },
+      "width": 100,
+      "height": 40,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -152.5,
+        "y": 346.5
+      },
+      "dragging": false
+    },
+    {
+      "id": "actionNode-1768132306486",
+      "type": "actionNode",
+      "position": {
+        "x": -4,
+        "y": 220
+      },
+      "data": {
+        "label": "Action Node"
+      },
+      "width": 200,
+      "height": 233,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -4,
+        "y": 220
+      },
+      "dragging": false,
+      "javaClassName": "com.example.DemoAction"
+    },
+    {
+      "id": "calltoProcessNode-1768132326754",
+      "type": "calltoProcessNode",
+      "position": {
+        "x": 254.5,
+        "y": 215.5
+      },
+      "data": {
+        "label": "Call Process"
+      },
+      "width": 200,
+      "height": 233,
+      "selected": false,
+      "dragging": false,
+      "callToProcess": "process/large.flowchartprocess.json"
+    },
+    {
+      "id": "actionNode-1768132953883",
+      "type": "actionNode",
+      "position": {
+        "x": 611.5,
+        "y": 247.25
+      },
+      "data": {
+        "label": "Action Node"
+      },
+      "width": 200,
+      "height": 233,
+      "selected": false,
+      "dragging": false,
+      "javaClassName": "com.example.DemoActionlast"
+    }
+  ],
+  "edges": [
+    {
+      "source": "startNode-1768132304966",
+      "sourceHandle": "exec-out",
+      "target": "actionNode-1768132306486",
+      "targetHandle": "exec-in",
+      "id": "reactflow__edge-startNode-1768132304966exec-out-actionNode-1768132306486exec-in"
+    },
+    {
+      "source": "actionNode-1768132306486",
+      "sourceHandle": "exec-out",
+      "target": "calltoProcessNode-1768132326754",
+      "targetHandle": "exec-in",
+      "id": "reactflow__edge-actionNode-1768132306486exec-out-calltoProcessNode-1768132326754exec-in"
+    },
+    {
+      "markerEnd": {
+        "type": "arrowclosed",
+        "width": 8,
+        "height": 8,
+        "color": "var(--primary)"
+      },
+      "style": {
+        "strokeWidth": 2.5,
+        "stroke": "var(--primary)"
+      },
+      "source": "calltoProcessNode-1768132326754",
+      "sourceHandle": "exec-out",
+      "target": "actionNode-1768132953883",
+      "targetHandle": "exec-in",
+      "id": "reactflow__edge-calltoProcessNode-1768132326754exec-out-actionNode-1768132953883exec-in"
+    }
+  ]
+}
