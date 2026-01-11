@@ -53,7 +53,7 @@ export function FlowCanvas() {
             const javaClassName = (node as any).javaClassName || node.data.javaClassName;
             if (javaClassName) {
                 vscode.postMessage({
-                    command: 'openFile',
+                    type: 'openFile',
                     payload: {
                         type: 'java',
                         target: javaClassName
@@ -66,7 +66,7 @@ export function FlowCanvas() {
             const callToProcess = (node as any).callToProcess || node.data.processId;
             if (callToProcess) {
                 vscode.postMessage({
-                    command: 'openFile',
+                    type: 'openFile',
                     payload: {
                         type: 'process',
                         target: callToProcess
