@@ -95,9 +95,17 @@ function AppContent() {
               json.name = base.replace('.flowchartprocess.json', '');
             }
 
+
             // 2. Process Filename: Use the relative path (e.g. "process/qwerd.flowchartprocess.json")
             if (message.relativePath) {
-              json.filename = message.relativePath;
+              let cleanPath = message.relativePath;
+              // Strip common resource prefixes for Java projects
+              if (cleanPath.startsWith('src/main/resources/')) {
+                cleanPath = cleanPath.substring('src/main/resources/'.length);
+              } else if (cleanPath.startsWith('src/test/resources/')) {
+                cleanPath = cleanPath.substring('src/test/resources/'.length);
+              }
+              json.filename = cleanPath;
             } else if (message.fullFileName) {
               json.filename = message.fullFileName;
             }
