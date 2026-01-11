@@ -53,6 +53,9 @@ class CustomFlowEditorProvider implements vscode.CustomTextEditorProvider {
                     console.log('Received ready from webview');
                     this.updateWebview(webviewPanel, document);
                     return;
+                case 'openFile':
+                    this.handleOpenFile(e.payload);
+                    return;
             }
         });
 
@@ -86,6 +89,39 @@ class CustomFlowEditorProvider implements vscode.CustomTextEditorProvider {
         webviewPanel.onDidDispose(() => {
             changeDocumentSubscription.dispose();
         });
+    }
+
+
+
+    private async handleOpenFile(payload: { type: 'java' | 'process', target: string }) {
+        if (!payload || !payload.target) return;
+
+        console.log(`Searching for file... Type: ${payload.type}, Target: ${payload.target}`);
+
+        let searchTerm = '';
+        if (payload.type === 'java') {
+            // Assume target is fully qualified like com.example.MyAction
+            // We search for the simple class name file
+            const parts = payload.target.split('.');
+            const simpleName = parts[parts.length - 1];
+            searchTerm = `**/${simpleName}.java`;
+        } else if (payload.type === 'process') {
+            // Process target is usually the name/ID
+            searchTerm = `**/${payload.target}.flowchartprocess.json`;
+        }
+
+        try {
+            const files = await vscode.workspace.findFiles(searchTerm, '**/node_modules/**', 1);
+            if (files && files.length > 0) {
+                const doc = await vscode.workspace.openTextDocument(files[0]);
+                await vscode.window.showTextDocument(doc);
+            } else {
+                vscode.window.showWarningMessage(`Could not find file for ${payload.type}: ${payload.target}`);
+            }
+        } catch (err) {
+            console.error('Error opening file:', err);
+            vscode.window.showErrorMessage(`Error opening file: ${err}`);
+        }
     }
 
     private updateWebview(webviewPanel: vscode.WebviewPanel, document: vscode.TextDocument) {
