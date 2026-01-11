@@ -8,32 +8,7 @@ import { JsonViewModal } from './components/flow/JsonView';
 import { AlertModal } from './components/ui/AlertModal';
 import { PropertyPanel } from './components/flow/PropertyPanel';
 import { clsx } from 'clsx';
-
-// Define VS Code API type
-declare global {
-  interface Window {
-    acquireVsCodeApi?: () => {
-      postMessage: (message: any) => void;
-      getState: () => any;
-      setState: (state: any) => void;
-    };
-  }
-}
-
-// Safe singleton for VS Code API
-let vscodeApi: any = null;
-
-function getVsCodeApi() {
-  if (vscodeApi) return vscodeApi;
-  if (typeof window !== 'undefined' && window.acquireVsCodeApi) {
-    try {
-      vscodeApi = window.acquireVsCodeApi();
-    } catch (e) {
-      console.error("Failed to acquire VS Code API:", e);
-    }
-  }
-  return vscodeApi;
-}
+import { getVsCodeApi } from './utils/vscode';
 
 // We need an internal component to access useReactFlow hook for project/unproject
 function AppContent() {
