@@ -33,9 +33,49 @@ const selector = (state: any) => ({
     onConnect: state.onConnect,
 });
 
+import { getVsCodeApi } from '../../utils/vscode';
+import type { Node } from 'reactflow';
+
+// ... (existing imports)
+
 // Export directly, as App.tsx already provides the ReactFlowProvider context
 export function FlowCanvas() {
     const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = useFlowStore(useShallow(selector));
+
+    const onNodeDoubleClick = (_event: React.MouseEvent, node: Node) => {
+        const vscode = getVsCodeApi();
+        if (!vscode) {
+            console.warn("VS Code API not available");
+            return;
+        }
+
+        if (node.type === 'actionNode') {
+            const javaClassName = (node as any).javaClassName || node.data.javaClassName;
+            if (javaClassName) {
+                vscode.postMessage({
+                    command: 'openFile',
+                    payload: {
+                        type: 'java',
+                        target: javaClassName
+                    }
+                });
+            }
+        } else if (node.type === 'calltoProcessNode' || node.type === 'callProcessNode') {
+            const callToProcess = (node as any).callToProcess || node.data.processId; // processId was legacy? Checking types/process.ts
+            // Actually types/process.ts says `callToProcess` on root, and `processId` on legacy data?
+            // Let's check logic: Store serialization puts it on root.
+            // But we should check both to be safe.
+            if (callToProcess) {
+                vscode.postMessage({
+                    command: 'openFile',
+                    payload: {
+                        type: 'process',
+                        target: callToProcess
+                    }
+                });
+            }
+        }
+    };
 
     return (
         <div className="w-full h-full bg-background">
@@ -45,6 +85,7 @@ export function FlowCanvas() {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
+                onNodeDoubleClick={onNodeDoubleClick}
                 nodeTypes={nodeTypes}
                 fitView
                 className="bg-background"
