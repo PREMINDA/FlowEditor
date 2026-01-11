@@ -117,8 +117,15 @@ class CustomFlowEditorProvider implements vscode.CustomTextEditorProvider {
         try {
             const files = await vscode.workspace.findFiles(searchTerm, '**/node_modules/**', 1);
             if (files && files.length > 0) {
-                const doc = await vscode.workspace.openTextDocument(files[0]);
-                await vscode.window.showTextDocument(doc);
+                const uri = files[0];
+                if (uri.path.endsWith('.flowchartprocess.json')) {
+                    // Force open with our custom editor
+                    await vscode.commands.executeCommand('vscode.openWith', uri, CustomFlowEditorProvider.viewType);
+                } else {
+                    // Default behavior for Java files etc.
+                    const doc = await vscode.workspace.openTextDocument(uri);
+                    await vscode.window.showTextDocument(doc);
+                }
             } else {
                 vscode.window.showWarningMessage(`Could not find file for ${payload.type}: ${payload.target}`);
             }
