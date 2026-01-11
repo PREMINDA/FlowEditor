@@ -59,12 +59,11 @@ export function FlowCanvas() {
                         target: javaClassName
                     }
                 });
+            } else {
+                useFlowStore.getState().setAlertMessage("This Action Node does not have a Java Class Name assigned.");
             }
         } else if (node.type === 'calltoProcessNode' || node.type === 'callProcessNode') {
-            const callToProcess = (node as any).callToProcess || node.data.processId; // processId was legacy? Checking types/process.ts
-            // Actually types/process.ts says `callToProcess` on root, and `processId` on legacy data?
-            // Let's check logic: Store serialization puts it on root.
-            // But we should check both to be safe.
+            const callToProcess = (node as any).callToProcess || node.data.processId;
             if (callToProcess) {
                 vscode.postMessage({
                     command: 'openFile',
@@ -73,6 +72,8 @@ export function FlowCanvas() {
                         target: callToProcess
                     }
                 });
+            } else {
+                useFlowStore.getState().setAlertMessage("This Call Process Node does not have a Process ID assigned.");
             }
         }
     };
