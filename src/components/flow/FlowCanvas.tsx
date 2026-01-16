@@ -30,6 +30,7 @@ const selector = (state: any) => ({
     edges: state.edges,
     onNodesChange: state.onNodesChange,
     onEdgesChange: state.onEdgesChange,
+    onEdgeUpdate: state.onEdgeUpdate,
     onConnect: state.onConnect,
 });
 
@@ -41,7 +42,7 @@ import type { Node } from 'reactflow';
 
 // Export directly, as App.tsx already provides the ReactFlowProvider context
 export function FlowCanvas() {
-    const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = useFlowStore(useShallow(selector));
+    const { nodes, edges, onNodesChange, onEdgesChange, onEdgeUpdate, onConnect } = useFlowStore(useShallow(selector));
 
     const onNodeDoubleClick = (_event: React.MouseEvent, node: Node) => {
         const vscode = getVsCodeApi();
@@ -86,6 +87,7 @@ export function FlowCanvas() {
                 edges={edges}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
+                onEdgeUpdate={onEdgeUpdate}
                 onConnect={onConnect}
                 onNodeDoubleClick={onNodeDoubleClick}
                 nodeTypes={nodeTypes}

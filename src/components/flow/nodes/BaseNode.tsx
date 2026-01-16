@@ -4,6 +4,7 @@ import type { ReactNode, MouseEvent } from 'react';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useBreakpointContext } from '../../../context/BreakpointContext';
+import { useFlowStore } from '../../../store/useFlowStore';
 
 // Context menu component
 interface ContextMenuProps {
@@ -52,10 +53,12 @@ interface BaseNodeProps {
     borderColor?: string;
     actions?: ReactNode;
     nodeId: string;
+    showEditButton?: boolean;
 }
 
-export function BaseNode({ label, selected, children, headerColor = 'bg-slate-700', borderColor = 'border-border', actions, nodeId }: BaseNodeProps) {
+export function BaseNode({ label, selected, children, headerColor = 'bg-slate-700', borderColor = 'border-border', actions, nodeId, showEditButton = true }: BaseNodeProps) {
     const { hasBreakpoint, toggleBreakpoint } = useBreakpointContext();
+    const setEditingNode = useFlowStore((state) => state.setEditingNode);
     const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
     const isBreakpointActive = hasBreakpoint(nodeId);
 
@@ -82,19 +85,36 @@ export function BaseNode({ label, selected, children, headerColor = 'bg-slate-70
             >
                 {/* Header */}
                 <div className={clsx("px-3 py-1 font-bold text-foreground text-sm flex items-center justify-between relative", headerColor)}>
-                    <div className="flex items-center gap-2">
+                    <span>{label}</span>
+                    <div className="flex items-center gap-1">
+                        {actions}
                         {isBreakpointActive && (
                             <div className="w-3 h-3 bg-destructive rounded-full border border-background shadow-sm" />
                         )}
-                        <span>{label}</span>
                     </div>
-                    {actions && <div className="flex gap-1">{actions}</div>}
                 </div>
 
                 {/* Body */}
                 <div className="p-2 space-y-2 relative">
+                    {/* Edit properties button */}
+                    {showEditButton && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingNode(nodeId);
+                            }}
+                            className="w-full px-3 py-1.5 flex items-center justify-center gap-1.5 text-[var(--ring)] opacity-60 hover:opacity-100 text-xs font-medium transition-opacity"
+                            title="Edit node properties"
+                        >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                            <span>Properties</span>
+                        </button>
+                    )}
+
                     {/* Main Ports */}
-                    <div className="flex justify-between relative min-h-[20px]">
+                    <div className="flex justify-between relative">
                         {/* General Flow In/Out handles (Exec) */}
                         <div className="absolute left-[-10px] top-0 flex flex-col gap-2">
                             <Handle type="target" position={Position.Left} id="exec-in" style={{ width: 16, height: 6, background: '#fff', borderRadius: 2 }} />
