@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { Handle, Position } from 'reactflow';
 import type { ReactNode, MouseEvent } from 'react';
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useBreakpointContext } from '../../../context/BreakpointContext';
 
 // Context menu component
@@ -14,7 +15,7 @@ interface ContextMenuProps {
 }
 
 function ContextMenu({ x, y, onToggleBreakpoint, hasBreakpoint, onClose }: ContextMenuProps) {
-    return (
+    return createPortal(
         <>
             {/* Backdrop to close menu on click outside */}
             <div
@@ -37,7 +38,8 @@ function ContextMenu({ x, y, onToggleBreakpoint, hasBreakpoint, onClose }: Conte
                     {hasBreakpoint ? 'Remove Breakpoint' : 'Add Breakpoint'}
                 </button>
             </div>
-        </>
+        </>,
+        document.body
     );
 }
 
@@ -59,7 +61,12 @@ export function BaseNode({ label, selected, children, headerColor = 'bg-slate-70
 
     const handleContextMenu = (e: MouseEvent) => {
         e.preventDefault();
-        setContextMenu({ x: e.clientX, y: e.clientY });
+        e.stopPropagation();
+        // Use viewport coordinates for fixed positioning
+        setContextMenu({
+            x: e.clientX,
+            y: e.clientY
+        });
     };
 
     return (
@@ -73,14 +80,14 @@ export function BaseNode({ label, selected, children, headerColor = 'bg-slate-70
                 )}
                 onContextMenu={handleContextMenu}
             >
-                {/* Breakpoint indicator */}
-                {isBreakpointActive && (
-                    <div className="absolute -left-2 top-1/2 -translate-y-1/2 z-10 w-4 h-4 bg-destructive rounded-full border-2 border-background shadow-lg" />
-                )}
-
                 {/* Header */}
-                <div className={clsx("px-3 py-1 font-bold text-foreground text-sm flex items-center justify-between", headerColor)}>
-                    <span>{label}</span>
+                <div className={clsx("px-3 py-1 font-bold text-foreground text-sm flex items-center justify-between relative", headerColor)}>
+                    <div className="flex items-center gap-2">
+                        {isBreakpointActive && (
+                            <div className="w-3 h-3 bg-destructive rounded-full border border-background shadow-sm" />
+                        )}
+                        <span>{label}</span>
+                    </div>
                     {actions && <div className="flex gap-1">{actions}</div>}
                 </div>
 
