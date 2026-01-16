@@ -13,7 +13,7 @@ import {
     addEdge,
     applyNodeChanges,
     applyEdgeChanges,
-    updateEdge,
+    reconnectEdge,
 } from 'reactflow';
 import type { ProcessSchema, Variable, FlowNodeData, AppNode } from '../types/process';
 
@@ -90,7 +90,7 @@ export const useFlowStore = create<FlowState>((set, get) => ({
     },
     onEdgeUpdate: (oldEdge: Edge, newConnection: Connection) => {
         set({
-            edges: updateEdge(oldEdge, newConnection, get().edges),
+            edges: reconnectEdge(oldEdge, newConnection, get().edges),
         });
     },
     onConnect: (connection: Connection) => {

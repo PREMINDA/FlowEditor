@@ -1,9 +1,13 @@
-
+import React, { useCallback, useRef } from 'react';
 import ReactFlow, {
     Background,
     Controls,
     MiniMap,
-    MarkerType
+    MarkerType,
+    type OnConnectStart,
+    type OnConnectEnd,
+    type HandleType,
+    type Edge
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useFlowStore } from '../../store/useFlowStore';
@@ -38,11 +42,76 @@ import { getVsCodeApi } from '../../utils/vscode';
 import { MessageType, FileType } from '../../config/messages';
 import type { Node } from 'reactflow';
 
-// ... (existing imports)
-
 // Export directly, as App.tsx already provides the ReactFlowProvider context
 export function FlowCanvas() {
     const { nodes, edges, onNodesChange, onEdgesChange, onEdgeUpdate, onConnect } = useFlowStore(useShallow(selector));
+
+    // Refs for smart connection
+    const connectingNodeId = useRef<string | null>(null);
+    const connectingHandleType = useRef<HandleType | null>(null);
+    const updatingEdge = useRef<Edge | null>(null); // Track if we are updating an existing edge
+
+    const onConnectStart: OnConnectStart = useCallback((_, { nodeId, handleType }) => {
+        connectingNodeId.current = nodeId;
+        connectingHandleType.current = handleType;
+    }, []);
+
+    const onConnectEnd: OnConnectEnd = useCallback(
+        (event) => {
+            if (!connectingNodeId.current) return;
+
+            const target = event.target as Element;
+            const nodeElement = target.closest('.react-flow__node');
+
+            if (nodeElement) {
+                const targetNodeId = nodeElement.getAttribute('data-id');
+
+                if (targetNodeId && targetNodeId !== connectingNodeId.current) {
+                    // Smart connection logic:
+                    // If dragging from Source (right) -> Connect to Target (left/exec-in)
+                    // If dragging from Target (left) -> Connect to Source (right/exec-out)
+
+                    // Only apply smart connect if we are dealing with main flow handles 'exec-in'/'exec-out'
+                    // For now, we assume implicit connection means main flow.
+
+                    const sourceId = connectingHandleType.current === 'source' ? connectingNodeId.current : targetNodeId;
+                    const targetId = connectingHandleType.current === 'source' ? targetNodeId : connectingNodeId.current;
+
+                    const sourceHandle = 'exec-out';
+                    const targetHandle = 'exec-in';
+
+                    const connection = {
+                        source: sourceId,
+                        sourceHandle: sourceHandle,
+                        target: targetId,
+                        targetHandle: targetHandle
+                    };
+
+                    if (updatingEdge.current) {
+                        // We are updating an existing edge -> REPLACE IT
+                        onEdgeUpdate(updatingEdge.current, connection);
+                    } else {
+                        // We are creating a new edge -> ADD IT
+                        onConnect(connection);
+                    }
+                }
+            }
+
+            // Reset
+            connectingNodeId.current = null;
+            connectingHandleType.current = null;
+            // updatingEdge is reset in onEdgeUpdateEnd
+        },
+        [onConnect, onEdgeUpdate]
+    );
+
+    const onEdgeUpdateStart = useCallback((_: any, edge: Edge) => {
+        updatingEdge.current = edge;
+    }, []);
+
+    const onEdgeUpdateEnd = useCallback(() => {
+        updatingEdge.current = null;
+    }, []);
 
     const onNodeDoubleClick = (_event: React.MouseEvent, node: Node) => {
         const vscode = getVsCodeApi();
@@ -88,7 +157,11 @@ export function FlowCanvas() {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onEdgeUpdate={onEdgeUpdate}
+                onEdgeUpdateStart={onEdgeUpdateStart}
+                onEdgeUpdateEnd={onEdgeUpdateEnd}
                 onConnect={onConnect}
+                onConnectStart={onConnectStart}
+                onConnectEnd={onConnectEnd}
                 onNodeDoubleClick={onNodeDoubleClick}
                 nodeTypes={nodeTypes}
                 fitView
