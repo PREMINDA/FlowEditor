@@ -12,6 +12,7 @@ export const CallProcessNode = memo(({ id, data, selected }: NodeProps<FlowNodeD
 
     return (
         <BaseNode
+            nodeId={id}
             label={data.label || style.label}
             selected={selected}
             headerColor={style.colors.bgSolid}

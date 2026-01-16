@@ -4,6 +4,9 @@ export const MessageType = {
     CHANGE: 'change',
     READY: 'ready',
     OPEN_FILE: 'openFile',
+    SET_BREAKPOINT: 'setBreakpoint',
+    REMOVE_BREAKPOINT: 'removeBreakpoint',
+    LOAD_BREAKPOINTS: 'loadBreakpoints',
 } as const;
 
 export const FileType = {

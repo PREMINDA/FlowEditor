@@ -1,12 +1,16 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { MessageType, FileType } from './config/messages.js';
+import { BreakpointManager } from './managers/BreakpointManager.js';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Flow Editor is now active!');
 
+    // Create breakpoint manager
+    const breakpointManager = new BreakpointManager(context);
+
     // Register our custom editor provider
-    const provider = new CustomFlowEditorProvider(context);
+    const provider = new CustomFlowEditorProvider(context, breakpointManager);
     context.subscriptions.push(
         vscode.window.registerCustomEditorProvider(
             CustomFlowEditorProvider.viewType,
@@ -32,7 +36,10 @@ export function activate(context: vscode.ExtensionContext) {
 class CustomFlowEditorProvider implements vscode.CustomTextEditorProvider {
     public static readonly viewType = 'flowEditor.flowchart';
 
-    constructor(private readonly context: vscode.ExtensionContext) { }
+    constructor(
+        private readonly context: vscode.ExtensionContext,
+        private readonly breakpointManager: BreakpointManager
+    ) { }
 
     // Flag to prevent infinite loop of updates
     private isUpdateFromWebview = false;
@@ -45,6 +52,8 @@ class CustomFlowEditorProvider implements vscode.CustomTextEditorProvider {
         // Receive message from the webview.
         // IMPORTANT: We must register this listener BEFORE setting the HTML to ensure we don't miss the "ready" message
         webviewPanel.webview.onDidReceiveMessage(e => {
+            const docUri = document.uri.toString();
+
             switch (e.type) {
                 case MessageType.CHANGE:
                     this.isUpdateFromWebview = true;
@@ -56,6 +65,18 @@ class CustomFlowEditorProvider implements vscode.CustomTextEditorProvider {
                     return;
                 case MessageType.OPEN_FILE:
                     this.handleOpenFile(e.payload);
+                    return;
+                case MessageType.SET_BREAKPOINT:
+                    if (e.nodeId) {
+                        this.breakpointManager.setBreakpoint(docUri, e.nodeId);
+                        console.log(`Breakpoint set: ${e.nodeId}`);
+                    }
+                    return;
+                case MessageType.REMOVE_BREAKPOINT:
+                    if (e.nodeId) {
+                        this.breakpointManager.removeBreakpoint(docUri, e.nodeId);
+                        console.log(`Breakpoint removed: ${e.nodeId}`);
+                    }
                     return;
             }
         });
@@ -146,6 +167,8 @@ class CustomFlowEditorProvider implements vscode.CustomTextEditorProvider {
         }
 
         const relativePath = vscode.workspace.asRelativePath(document.uri);
+        const docUri = document.uri.toString();
+        const breakpoints = this.breakpointManager.getBreakpoints(docUri);
 
         webviewPanel.webview.postMessage({
             type: MessageType.UPDATE,
@@ -153,6 +176,12 @@ class CustomFlowEditorProvider implements vscode.CustomTextEditorProvider {
             fileName: fileName,
             fullFileName: base, // Keep for backward compatibility if needed, but we'll use relativePath
             relativePath: relativePath
+        });
+
+        // Send breakpoints separately to keep messages focused
+        webviewPanel.webview.postMessage({
+            type: MessageType.LOAD_BREAKPOINTS,
+            breakpoints: breakpoints
         });
     }
 

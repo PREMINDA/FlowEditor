@@ -10,6 +10,7 @@ import { PropertyPanel } from './components/flow/PropertyPanel';
 import { clsx } from 'clsx';
 import { getVsCodeApi } from './utils/vscode';
 import { MessageType } from './config/messages';
+import { BreakpointProvider } from './context/BreakpointContext';
 
 // We need an internal component to access useReactFlow hook for project/unproject
 function AppContent() {
@@ -313,9 +314,10 @@ function AppContent() {
 
 function App() {
   return (
-    // Provider is needed high up for onDrop to access project()
     <ReactFlowProvider>
-      <AppContent />
+      <BreakpointProvider>
+        <AppContent />
+      </BreakpointProvider>
     </ReactFlowProvider>
   );
 }

@@ -11,6 +11,7 @@ export const AssignNode = memo(({ id, data, selected }: NodeProps<FlowNodeData>)
 
     return (
         <BaseNode
+            nodeId={id}
             label={data?.label || style.label}
             selected={selected}
             headerColor={style.colors.bgSolid}
