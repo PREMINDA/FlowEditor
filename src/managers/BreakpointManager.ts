@@ -68,6 +68,17 @@ export class BreakpointManager {
     }
 
     /**
+     * Get ALL unique node IDs across ALL documents (for Java sync)
+     */
+    getAllNodeIds(): string[] {
+        const allIds = new Set<string>();
+        for (const ids of this.breakpoints.values()) {
+            ids.forEach(id => allIds.add(id));
+        }
+        return Array.from(allIds);
+    }
+
+    /**
      * Clear all breakpoints for a specific document
      */
     clearBreakpoints(documentUri: string): void {

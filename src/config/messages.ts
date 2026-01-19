@@ -7,9 +7,10 @@ export const MessageType = {
     SET_BREAKPOINT: 'setBreakpoint',
     REMOVE_BREAKPOINT: 'removeBreakpoint',
     LOAD_BREAKPOINTS: 'loadBreakpoints',
+    EXECUTION_PAUSED: 'executionPaused'
 } as const;
 
 export const FileType = {
     JAVA: 'java',
-    PROCESS: 'process',
+    PROCESS: 'process'
 } as const;

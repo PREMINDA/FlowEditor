@@ -13,6 +13,7 @@ export function useVsCodeMessage() {
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
             const message = event.data;
+
             if (message.type === MessageType.UPDATE) {
                 setIsLoading(true);
 
@@ -73,6 +74,14 @@ export function useVsCodeMessage() {
                         setIsLoading(false);
                     }
                 }, 100);
+            } else if (message.type === MessageType.EXECUTION_PAUSED) {
+                // Handle Debugger Pause
+                const nodeId = message.nodeId;
+                console.log("App: Execution paused at", nodeId);
+                useFlowStore.getState().setDebugPausedNode(nodeId);
+            } else if (message.type === MessageType.LOAD_BREAKPOINTS) {
+                // Pass to breakpoint system
+                // (Handled by useBreakpoints hook, but we can log here)
             }
         };
 

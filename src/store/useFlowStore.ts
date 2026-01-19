@@ -57,6 +57,9 @@ interface FlowState {
     // Global Alerts
     alertMessage: string | null;
     setAlertMessage: (message: string | null) => void;
+    // Debug State
+    debugPausedNodeId: string | null;
+    setDebugPausedNode: (id: string | null) => void;
 }
 
 export const useFlowStore = create<FlowState>((set, get) => ({
@@ -68,12 +71,14 @@ export const useFlowStore = create<FlowState>((set, get) => ({
     processFilename: 'process.flowchartprocess.json',
     processType: 'processNode',
     editingNodeId: null,
+    debugPausedNodeId: null,
 
     setProcessName: (name) => set({ processName: name }),
     setProcessFilename: (filename) => set({ processFilename: filename }),
     setProcessType: (type) => set({ processType: type }),
 
     setEditingNode: (id) => set({ editingNodeId: id }),
+    setDebugPausedNode: (id) => set({ debugPausedNodeId: id }),
 
     alertMessage: null,
     setAlertMessage: (message) => set({ alertMessage: message }),

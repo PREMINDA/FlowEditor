@@ -59,8 +59,10 @@ interface BaseNodeProps {
 export function BaseNode({ label, selected, children, headerColor = 'bg-slate-700', borderColor = 'border-border', actions, nodeId, showEditButton = true }: BaseNodeProps) {
     const { hasBreakpoint, toggleBreakpoint } = useBreakpointContext();
     const setEditingNode = useFlowStore((state) => state.setEditingNode);
+    const debugPausedNodeId = useFlowStore((state) => state.debugPausedNodeId);
     const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
     const isBreakpointActive = hasBreakpoint(nodeId);
+    const isPaused = debugPausedNodeId === nodeId;
 
     const handleContextMenu = (e: MouseEvent) => {
         e.preventDefault();
@@ -79,7 +81,8 @@ export function BaseNode({ label, selected, children, headerColor = 'bg-slate-70
                     "w-[200px] shadow-lg rounded-lg border-2 bg-card overflow-hidden transition-all hover:shadow-xl hover:border-primary relative",
                     borderColor,
                     selected && "border-primary ring-2 ring-primary/30 shadow-primary/10",
-                    isBreakpointActive && "ring-2 ring-destructive/50"
+                    isBreakpointActive && "ring-2 ring-destructive/50",
+                    isPaused && "ring-4 ring-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.6)] animate-pulse"
                 )}
                 onContextMenu={handleContextMenu}
             >
