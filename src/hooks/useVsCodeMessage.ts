@@ -9,6 +9,8 @@ export function useVsCodeMessage() {
     const [isLoading, setIsLoading] = useState(false);
     const loadProcess = useFlowStore((state) => state.loadProcess);
     const [vscode] = useState(getVsCodeApi);
+    // Keep track of the last loaded JSON to avoid echoing it back as a change
+    const [lastLoadedJson, setLastLoadedJson] = useState<string>("");
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
@@ -67,6 +69,10 @@ export function useVsCodeMessage() {
                             }
                         }
 
+                        // Save the stringified version BEFORE loading to compare against later
+                        // We use the parsed-then-stringified version to normalize formatting
+                        setLastLoadedJson(JSON.stringify(json, null, 2));
+
                         loadProcess(json);
                     } catch (err) {
                         console.error("Failed to parse document from VS Code", err);
@@ -90,10 +96,15 @@ export function useVsCodeMessage() {
         const unsubscribe = useFlowStore.subscribe(() => {
             if (vscode) {
                 const json = useFlowStore.getState().serialize();
-                vscode.postMessage({
-                    type: MessageType.CHANGE,
-                    payload: JSON.stringify(json, null, 2)
-                });
+                const jsonString = JSON.stringify(json, null, 2);
+
+                // Only send update if content is strictly different from what we loaded
+                if (jsonString !== lastLoadedJson) {
+                    vscode.postMessage({
+                        type: MessageType.CHANGE,
+                        payload: jsonString
+                    });
+                }
             }
         });
 
@@ -106,7 +117,7 @@ export function useVsCodeMessage() {
             window.removeEventListener('message', handleMessage);
             unsubscribe();
         };
-    }, [loadProcess, vscode]);
+    }, [loadProcess, vscode, lastLoadedJson]);
 
     return { isLoading, vscode };
 }
