@@ -1,18 +1,13 @@
 
 import * as vscode from 'vscode';
-import { MessageType } from '../config/messages';
 
 /**
  * Spies on the standard Java Debug Adapter checks for Flow Status updates.
  */
 export class FlowDebugTracker implements vscode.DebugAdapterTracker {
 
-    private session: vscode.DebugSession;
-    private context: vscode.ExtensionContext;
-
-    constructor(session: vscode.DebugSession, context: vscode.ExtensionContext) {
-        this.session = session;
-        this.context = context;
+    constructor(_session: vscode.DebugSession, _context: vscode.ExtensionContext) {
+        // Properties not currently used, but args kept for potential future use or factory compliance
     }
 
     /**
